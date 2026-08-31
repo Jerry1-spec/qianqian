@@ -1,0 +1,69 @@
+# =====================================================================
+# Render 一键部署蓝图（免费层）
+# 在 Render 控制台 New + → Blueprint，选中本仓库即可按此文件创建：
+#   1) 一个免费 PostgreSQL 数据库
+#   2) 后端 Web Service（Docker 构建 Spring Boot）
+#   3) 前端 Static Site（Vite 构建 Vue3）
+# 注意：免费层后端 15 分钟无访问会休眠，冷启动约 30-60 秒；免费库约 90 天过期。
+# =====================================================================
+
+databases:
+  - name: report-db
+    plan: free
+    databaseName: report_assistant
+    # Render 会自动生成用户名/密码，并可注入到服务的环境变量
+
+services:
+  # ---------------- 后端 ----------------
+  - type: web
+    name: report-backend
+    runtime: docker
+    plan: free
+    rootDir: report-backend
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /api/health
+    envVars:
+      - key: SPRING_PROFILES_ACTIVE
+        value: postgres
+      # 首次部署设 always 自动建表+初始化导师账号；建成后可在控制台改为 never
+      - key: DB_INIT_MODE
+        value: always
+      # 从 Render 数据库自动注入连接信息。
+      # 注意：Render 的 connectionString 形如 postgres://user:pass@host/db，
+      # 不能直接给 Spring JDBC 用；这里用 DATABASE_URL 传原始串，由应用侧转换。
+      - key: DATABASE_URL
+        fromDatabase:
+          name: report-db
+          property: connectionString
+      - key: DB_USERNAME
+        fromDatabase:
+          name: report-db
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: report-db
+          property: password
+      # JWT 密钥随机生成，保证安全（不写进仓库）
+      - key: JWT_SECRET
+        generateValue: true
+      # 允许的前端来源：部署后填前端 Static Site 的实际地址
+      - key: APP_CORS_ALLOWED_ORIGINS
+        sync: false
+
+  # ---------------- 前端 ----------------
+  - type: web
+    name: report-frontend
+    runtime: static
+    plan: free
+    rootDir: report-frontend
+    buildCommand: npm install && npm run build
+    staticPublishPath: ./dist
+    envVars:
+      # 后端地址：部署后填后端 Web Service 的实际地址 + /api
+      - key: VITE_API_BASE
+        sync: false
+    routes:
+      # SPA 路由回退：所有路径交给 index.html
+      - type: rewrite
+        source: /*
+        destination: /index.html

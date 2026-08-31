@@ -1,0 +1,21 @@
+# ============ H2 内存数据库（本地零依赖演示）============
+# 激活方式：application.yml 默认 active: h2，或 -Dspring.profiles.active=h2
+# 特点：无需安装 MySQL，重启后数据清空；启动自动建表 + 初始化导师账号。
+spring:
+  datasource:
+    # MODE=MySQL 让 H2 兼容 MySQL 语法；DB_CLOSE_DELAY=-1 保证连接期间库不销毁
+    url: jdbc:h2:mem:report_assistant;MODE=MySQL;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: ""
+  sql:
+    init:
+      # 每次启动重建表并灌入初始数据（内存库本就每次全新）
+      mode: always
+      schema-locations: classpath:schema-h2.sql
+      data-locations: classpath:data-h2.sql
+  # 打开 H2 web 控制台，浏览器访问 http://localhost:8080/h2-console 可看数据
+  h2:
+    console:
+      enabled: true
+      path: /h2-console

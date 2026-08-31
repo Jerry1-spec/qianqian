@@ -1,0 +1,22 @@
+# ===== 构建产物 =====
+report-backend/target/
+report-frontend/dist/
+report-frontend/node_modules/
+
+# ===== 便携工具（本地用，不入库）=====
+.tools/
+
+# ===== 运行日志 =====
+*.log
+
+# ===== IDE / 系统 =====
+.idea/
+.vscode/
+*.iml
+.DS_Store
+Thumbs.db
+
+# ===== 环境密钥（切勿提交真实密钥）=====
+# 生产密钥通过 Render 环境变量注入，不写进仓库
+report-frontend/.env.local
+report-frontend/.env.*.local
