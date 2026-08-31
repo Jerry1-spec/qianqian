@@ -51,10 +51,10 @@ services:
         sync: false
 
   # ---------------- 前端 ----------------
+  # 静态站不接受 plan 字段（静态托管本身免费），写了会报 "no such plan free"
   - type: web
     name: report-frontend
     runtime: static
-    plan: free
     rootDir: report-frontend
     buildCommand: npm install && npm run build
     staticPublishPath: ./dist
