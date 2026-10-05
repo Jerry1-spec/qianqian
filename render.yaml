@@ -1,69 +1,25 @@
 # =====================================================================
-# Render 一键部署蓝图（免费层）
+# Render 一键部署蓝图（免费层，单服务一体化）
 # 在 Render 控制台 New + → Blueprint，选中本仓库即可按此文件创建：
-#   1) 一个免费 PostgreSQL 数据库
-#   2) 后端 Web Service（Docker 构建 Spring Boot）
-#   3) 前端 Static Site（Vite 构建 Vue3）
-# 注意：免费层后端 15 分钟无访问会休眠，冷启动约 30-60 秒；免费库约 90 天过期。
+#   1) 一个免费 Web Service（Docker 构建，内含前端 + Spring Boot + H2 文件库）
+#
+# 注意事项：
+#   - 免费层 15 分钟无访问会休眠，需用 UptimeRobot 等定时 ping 保活
+#   - Render 免费实例无持久化磁盘，休眠/重启后 H2 数据文件会重置
+#     （建表脚本幂等，重启后自动重建表 + 导师账号；学生/周报数据会丢）
+#   - 保活后实例不休眠，数据可持续保存；仅在重新部署时重置
 # =====================================================================
 
-databases:
-  - name: report-db
-    plan: free
-    databaseName: report_assistant
-    # Render 会自动生成用户名/密码，并可注入到服务的环境变量
-
 services:
-  # ---------------- 后端 ----------------
   - type: web
-    name: report-backend
+    name: report-assistant
     runtime: docker
     plan: free
-    rootDir: report-backend
+    rootDir: .
     dockerfilePath: ./Dockerfile
     healthCheckPath: /api/health
+    # 免费层自动注入 PORT；JVM 参数已在 Dockerfile 中限制内存适配 512MB 实例
     envVars:
-      - key: SPRING_PROFILES_ACTIVE
-        value: postgres
-      # 首次部署设 always 自动建表+初始化导师账号；建成后可在控制台改为 never
-      - key: DB_INIT_MODE
-        value: always
-      # 从 Render 数据库自动注入连接信息。
-      # 注意：Render 的 connectionString 形如 postgres://user:pass@host/db，
-      # 不能直接给 Spring JDBC 用；这里用 DATABASE_URL 传原始串，由应用侧转换。
-      - key: DATABASE_URL
-        fromDatabase:
-          name: report-db
-          property: connectionString
-      - key: DB_USERNAME
-        fromDatabase:
-          name: report-db
-          property: user
-      - key: DB_PASSWORD
-        fromDatabase:
-          name: report-db
-          property: password
-      # JWT 密钥随机生成，保证安全（不写进仓库）
+      # JWT 密钥随机生成（不写进仓库）
       - key: JWT_SECRET
         generateValue: true
-      # 允许的前端来源：前端 Static Site 的公网地址（末尾不加 /）
-      - key: APP_CORS_ALLOWED_ORIGINS
-        value: https://report-frontend-un2k.onrender.com
-
-  # ---------------- 前端 ----------------
-  # 静态站不接受 plan 字段（静态托管本身免费），写了会报 "no such plan free"
-  - type: web
-    name: report-frontend
-    runtime: static
-    rootDir: report-frontend
-    buildCommand: npm install && npm run build
-    staticPublishPath: ./dist
-    envVars:
-      # 后端地址 + /api（Vite 构建时写入 JS，改动后需重新构建才生效）
-      - key: VITE_API_BASE
-        value: https://report-backend-8raw.onrender.com/api
-    routes:
-      # SPA 路由回退：所有路径交给 index.html
-      - type: rewrite
-        source: /*
-        destination: /index.html

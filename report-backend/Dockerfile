@@ -13,4 +13,10 @@ WORKDIR /app
 COPY --from=build /app/target/report-backend-1.0.0.jar app.jar
 # 云平台通过 PORT 注入端口；SPRING_PROFILES_ACTIVE 选择 postgres
 EXPOSE 8080
-ENTRYPOINT ["java", "-jar", "app.jar"]
+# Koyeb 免费实例仅 512MB 内存：限制堆占用并使用低内存的 SerialGC，
+# 避免容器被 OOM 杀死；urandom 加速容器内启动熵初始化。
+ENTRYPOINT ["java", \
+  "-XX:MaxRAMPercentage=60.0", \
+  "-XX:+UseSerialGC", \
+  "-Djava.security.egd=file:/dev/./urandom", \
+  "-jar", "app.jar"]

@@ -1,0 +1,17 @@
+# 忽略本地构建产物，云端由 Dockerfile 重新构建
+report-frontend/node_modules/
+report-frontend/dist/
+report-backend/target/
+report-backend/.mvn/wrapper/maven-wrapper.jar
+# 本地便携工具与依赖（体积大、与云端无关）
+.tools/
+# 本地 H2 数据文件
+data/
+*.mv.db
+*.trace.db
+# IDE / 系统
+.idea/
+.vscode/
+*.iml
+.DS_Store
+*.log

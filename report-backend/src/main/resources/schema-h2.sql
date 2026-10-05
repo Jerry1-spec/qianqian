@@ -1,10 +1,10 @@
 -- =====================================================================
--- H2 内存库建表脚本（本地演示专用，字段/约束与 MySQL 版 init.sql 对齐）
--- 由 application-h2.yml 的 spring.sql.init 在启动时自动执行
+-- H2 建表脚本（本地与云端统一使用，字段/约束与 MySQL 版 init.sql 对齐）
+-- 使用 CREATE TABLE IF NOT EXISTS，保证文件模式下重复执行幂等（不覆盖已有数据）。
+-- 由 application-h2.yml 的 spring.sql.init 在启动时自动执行。
 -- =====================================================================
 
-DROP TABLE IF EXISTS `sys_user`;
-CREATE TABLE `sys_user` (
+CREATE TABLE IF NOT EXISTS `sys_user` (
   `id` BIGINT NOT NULL AUTO_INCREMENT,
   `username` VARCHAR(20) NOT NULL,
   `password` VARCHAR(100) NOT NULL,
@@ -17,8 +17,7 @@ CREATE TABLE `sys_user` (
   CONSTRAINT `uk_username` UNIQUE (`username`)
 );
 
-DROP TABLE IF EXISTS `weekly_report`;
-CREATE TABLE `weekly_report` (
+CREATE TABLE IF NOT EXISTS `weekly_report` (
   `id` BIGINT NOT NULL AUTO_INCREMENT,
   `student_id` BIGINT NOT NULL,
   `week_year` VARCHAR(20) NOT NULL,
@@ -34,4 +33,4 @@ CREATE TABLE `weekly_report` (
   PRIMARY KEY (`id`),
   CONSTRAINT `uk_student_week` UNIQUE (`student_id`, `week_year`)
 );
-CREATE INDEX `idx_student_id` ON `weekly_report` (`student_id`);
+CREATE INDEX IF NOT EXISTS `idx_student_id` ON `weekly_report` (`student_id`);

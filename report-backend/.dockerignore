@@ -1,0 +1,9 @@
+# 构建产物由镜像内重新生成，排除本地 target 避免污染上下文与缓存
+target/
+# 本地 IDE / 系统文件
+.idea/
+.vscode/
+*.iml
+.DS_Store
+# 日志
+*.log

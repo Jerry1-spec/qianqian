@@ -6,7 +6,8 @@ import router from '../router'
 const request = axios.create({
   // 本地开发走 Vite 代理 /api；生产通过 VITE_API_BASE 指向后端公网地址
   baseURL: import.meta.env.VITE_API_BASE || '/api',
-  timeout: 10000
+  // 免费云平台（Koyeb 缩容冷启动 + Neon 唤醒叠加）首次请求可能较慢，放宽到 60 秒
+  timeout: 60000
 })
 
 // 请求拦截器：附带 token

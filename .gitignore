@@ -2,6 +2,13 @@
 report-backend/target/
 report-frontend/dist/
 report-frontend/node_modules/
+# 前后端一体化部署：前端产物由 Dockerfile 在云端构建时拷入，不提交本地副本
+report-backend/src/main/resources/static/
+# H2 文件数据库（本地运行时生成，云端由容器持久化）
+report-backend/data/
+data/
+*.mv.db
+*.trace.db
 
 # ===== 便携工具（本地用，不入库）=====
 .tools/
@@ -17,6 +24,6 @@ report-frontend/node_modules/
 Thumbs.db
 
 # ===== 环境密钥（切勿提交真实密钥）=====
-# 生产密钥通过 Render 环境变量注入，不写进仓库
+# 生产密钥通过云平台（Zeabur 等）环境变量注入，不写进仓库
 report-frontend/.env.local
 report-frontend/.env.*.local
