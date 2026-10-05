@@ -7,26 +7,24 @@
 FROM maven:3.9-eclipse-temurin-17 AS build
 WORKDIR /app
 
-# 安装 Node.js 20（用于构建前端）
-RUN apt-get update && apt-get install -y curl \
-    && curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
-    && apt-get install -y nodejs \
+# 安装 Node.js + npm（Ubuntu 默认源，含 npm；Node 18 足够构建 Vite 项目）
+RUN apt-get update && apt-get install -y nodejs npm \
     && rm -rf /var/lib/apt/lists/*
 
-# 构建前端
+# 构建前端（限制 Node 内存，避免 512MB 容器 OOM）
 WORKDIR /app/frontend
 COPY report-frontend/package*.json ./
 RUN npm ci
 COPY report-frontend/ ./
-RUN npm run build
+RUN NODE_OPTIONS="--max-old-space-size=384" npm run build
 
 # 构建后端（把前端产物放入 static 目录）
 WORKDIR /app/backend
 COPY report-backend/pom.xml .
-RUN mvn -q -e -DskipTests dependency:go-offline
+RUN MAVEN_OPTS="-Xmx384m" mvn -q -e -DskipTests dependency:go-offline
 COPY report-backend/src ./src
 RUN cp -r /app/frontend/dist ./src/main/resources/static
-RUN mvn -q -DskipTests clean package
+RUN MAVEN_OPTS="-Xmx384m" mvn -q -DskipTests clean package
 
 # ---- 阶段 2：运行 ----
 FROM eclipse-temurin:17-jre
