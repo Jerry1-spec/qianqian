@@ -1,4 +1,4 @@
-import { createRouter, createWebHistory } from 'vue-router'
+import { createRouter, createWebHistory, createWebHashHistory } from 'vue-router'
 import { useUserStore } from '../store/user'
 
 const routes = [
@@ -13,8 +13,9 @@ const routes = [
   { path: '/:pathMatch(.*)*', redirect: '/login' }
 ]
 
+// 桌面端（Electron，file:// 协议）必须用 hash 模式；网页/云端保持 history 模式
 const router = createRouter({
-  history: createWebHistory(),
+  history: window.location.protocol === 'file:' ? createWebHashHistory() : createWebHistory(),
   routes
 })
 

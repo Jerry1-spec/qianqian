@@ -40,10 +40,17 @@
             <version>${mybatis-plus.version}</version>
         </dependency>
 
-        <!-- H2 文件数据库：本地与云端统一使用，无需单独数据库服务 -->
+        <!-- H2 文件数据库：本地默认使用，无需单独数据库服务 -->
         <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+
+        <!-- PostgreSQL 驱动：云端持久化（SPRING_PROFILES_ACTIVE=pg 时启用） -->
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
             <scope>runtime</scope>
         </dependency>
 

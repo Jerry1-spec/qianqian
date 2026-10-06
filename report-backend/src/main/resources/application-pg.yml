@@ -1,0 +1,18 @@
+# ============ PostgreSQL 云数据库（云端持久化方案）============
+# 激活方式：环境变量 SPRING_PROFILES_ACTIVE=pg
+# 连接信息由 SnapDeploy 控制台的环境变量注入，不写入代码仓库：
+#   SPRING_DATASOURCE_URL      例：jdbc:postgresql://ep-xxx.aws.neon.tech/neondb?sslmode=require
+#   SPRING_DATASOURCE_USERNAME 数据库用户名
+#   SPRING_DATASOURCE_PASSWORD 数据库密码
+spring:
+  datasource:
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+  sql:
+    init:
+      # 始终执行初始化脚本（脚本内部 IF NOT EXISTS / ON CONFLICT 保证幂等，不覆盖已有数据）
+      mode: always
+      schema-locations: classpath:schema-pg.sql
+      data-locations: classpath:data-pg.sql
