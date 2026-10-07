@@ -1,0 +1,1 @@
+import{r}from"./request-XR2DVfaT.js";function o(){return r.get("/report/list")}function s(t){return r.post("/report/save",t)}function n(t){return r.post("/report/save-and-submit",t)}function a(t){return r.get(`/report/${t}`)}export{a,n as b,o as g,s};

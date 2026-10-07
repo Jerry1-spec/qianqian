@@ -1,7 +1,7 @@
 import request from './request'
 
 /**
- * 创建学生账号。data: { phone }，返回 { studentId }
+ * 创建学生账号。data: { realName, grade, phone }，返回 { studentId }
  */
 export function createStudent(data) {
   return request.post('/teacher/create-student', data)

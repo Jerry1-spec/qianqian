@@ -1,0 +1,1 @@
+import{r as e}from"./request-XR2DVfaT.js";function u(t){return e.post("/teacher/create-student",t)}function s(){return e.get("/teacher/students")}function a(t){return e.get(`/teacher/student/${t}/reports`)}function o(t,r){return e.put(`/teacher/report/${t}/review`,r)}export{a,u as c,s as g,o as r};

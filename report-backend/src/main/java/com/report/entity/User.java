@@ -12,6 +12,8 @@ public class User {
     @TableId(type = IdType.AUTO)
     private Long id;
     private String username;
+    private String realName;
+    private String grade;
     private String password;
     private String role;
     private Long teacherId;
@@ -33,6 +35,22 @@ public class User {
 
     public void setUsername(String username) {
         this.username = username;
+    }
+
+    public String getRealName() {
+        return realName;
+    }
+
+    public void setRealName(String realName) {
+        this.realName = realName;
+    }
+
+    public String getGrade() {
+        return grade;
+    }
+
+    public void setGrade(String grade) {
+        this.grade = grade;
     }
 
     public String getPassword() {

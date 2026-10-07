@@ -1,7 +1,7 @@
 <template>
   <div class="page">
     <div class="header">
-      <h2>周报批阅</h2>
+      <h2>周报批阅{{ stuName ? ` - ${stuName}（${stuGrade}）` : '' }}</h2>
       <el-button @click="goBack">返回</el-button>
     </div>
 
@@ -58,6 +58,8 @@ const route = useRoute()
 const router = useRouter()
 const reportId = Number(route.params.id)
 const stuId = route.query.stuId
+const stuName = route.query.stuName || ''
+const stuGrade = route.query.stuGrade || ''
 
 const statusMap = {
   draft: { text: '草稿', type: 'info' },

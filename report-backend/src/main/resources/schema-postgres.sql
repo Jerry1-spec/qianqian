@@ -8,6 +8,8 @@
 CREATE TABLE IF NOT EXISTS sys_user (
   id               BIGSERIAL    PRIMARY KEY,
   username         VARCHAR(20)  NOT NULL,
+  real_name        VARCHAR(50),
+  grade            VARCHAR(20),
   password         VARCHAR(100) NOT NULL,
   role             VARCHAR(16)  NOT NULL,
   teacher_id       BIGINT,
@@ -34,3 +36,7 @@ CREATE TABLE IF NOT EXISTS weekly_report (
 );
 
 CREATE INDEX IF NOT EXISTS idx_student_id ON weekly_report (student_id);
+
+-- 兼容已建好的旧库：补充 V1.1 新增的姓名/年级列（已存在则跳过）
+ALTER TABLE sys_user ADD COLUMN IF NOT EXISTS real_name VARCHAR(50);
+ALTER TABLE sys_user ADD COLUMN IF NOT EXISTS grade VARCHAR(20);

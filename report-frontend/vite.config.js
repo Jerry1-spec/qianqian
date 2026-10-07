@@ -5,6 +5,8 @@ export default defineConfig({
   // 桌面端（Electron，file:// 协议）必须用相对路径；网页/云端用根路径
   base: process.env.VITE_PLATFORM === 'desktop' ? './' : '/',
   plugins: [vue()],
+  // Capacitor 打包为 APK 时需用相对路径，让 WebView 能加载本地资源
+  base: './',
   server: {
     port: 5173,
     proxy: {

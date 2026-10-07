@@ -1,0 +1,20 @@
+# ============ H2 文件数据库（电脑版安装包专用，数据持久化）============
+# 激活方式：--spring.profiles.active=h2file
+# 特点：无需安装 MySQL，数据保存在应用目录 data/ 下，重启不丢失；
+#       启动时自动建表（已存在则跳过）+ 初始化导师账号（已存在则跳过）。
+spring:
+  datasource:
+    # MODE=MySQL 兼容 MySQL 语法；文件库路径为应用目录下 data/reportdb
+    url: jdbc:h2:file:./data/reportdb;MODE=MySQL;DB_CLOSE_ON_EXIT=FALSE
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: ""
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath:schema-h2file.sql
+      data-locations: classpath:data-h2file.sql
+  h2:
+    console:
+      enabled: true
+      path: /h2-console

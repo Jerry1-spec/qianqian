@@ -53,6 +53,8 @@ public class TeacherService {
 
         User student = new User();
         student.setUsername(phone);
+        student.setRealName(req.getRealName().trim());
+        student.setGrade(req.getGrade().trim());
         student.setPassword(passwordEncoder.encode(phone.substring(phone.length() - 6)));
         student.setRole("student");
         student.setTeacherId(teacherId);
@@ -77,7 +79,8 @@ public class TeacherService {
                     .last("limit 1"));
             String weekYear = latest == null ? null : latest.getWeekYear();
             String status = latest == null ? null : latest.getStatus();
-            return new StudentItemResp(s.getId(), s.getUsername(), weekYear, status);
+            return new StudentItemResp(s.getId(), s.getRealName(), s.getGrade(),
+                    s.getUsername(), weekYear, status);
         }).toList();
     }
 

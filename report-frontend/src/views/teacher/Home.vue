@@ -9,6 +9,12 @@
     </div>
 
     <el-table v-loading="loading" :data="students" border stripe>
+      <el-table-column prop="realName" label="姓名" width="110">
+        <template #default="{ row }">{{ row.realName || '—' }}</template>
+      </el-table-column>
+      <el-table-column prop="grade" label="年级" width="90">
+        <template #default="{ row }">{{ row.grade || '—' }}</template>
+      </el-table-column>
       <el-table-column prop="username" label="学生账号（手机号）" width="200" />
       <el-table-column label="最新周报周期" width="160">
         <template #default="{ row }">{{ row.latestWeekYear || '—' }}</template>
@@ -30,7 +36,7 @@
     </el-table>
 
     <!-- 某学生的周报列表抽屉 -->
-    <el-drawer v-model="drawerVisible" :title="`${currentStudent?.username || ''} 的周报`" size="52%">
+    <el-drawer v-model="drawerVisible" :title="`${currentStudent?.realName || currentStudent?.username || ''}（${currentStudent?.grade || ''}）的周报`" size="52%">
       <el-table v-loading="reportsLoading" :data="studentReports" border>
         <el-table-column prop="weekYear" label="周期" width="120" />
         <el-table-column label="状态" width="110">
@@ -52,9 +58,18 @@
       </el-table>
     </el-drawer>
 
-    <!-- 创建学生账号弹窗 -->
+    <!-- 创建学生账号弹窗：姓名、年级在前，手机号在后 -->
     <el-dialog v-model="dialogVisible" title="创建学生账号" width="420px">
       <el-form ref="formRef" :model="form" :rules="rules" label-width="80px" @submit.prevent>
+        <el-form-item label="姓名" prop="realName">
+          <el-input v-model="form.realName" placeholder="请输入学生姓名" maxlength="20" />
+        </el-form-item>
+        <el-form-item label="年级" prop="grade">
+          <el-select v-model="form.grade" placeholder="请选择年级" style="width: 100%"
+                     filterable allow-create default-first-option>
+            <el-option v-for="g in gradeOptions" :key="g" :label="g" :value="g" />
+          </el-select>
+        </el-form-item>
         <el-form-item label="手机号" prop="phone">
           <el-input v-model="form.phone" placeholder="请输入学生手机号" maxlength="11" />
         </el-form-item>
@@ -115,21 +130,26 @@ async function viewReports(row) {
 }
 function goReview(report) {
   // 批阅页通过 query 带 stuId，进页后据此拉取该生周报定位当前条
-  router.push({ path: `/teacher/report/${report.id}`, query: { stuId: currentStudent.value.studentId } })
+  router.push({ path: `/teacher/report/${report.id}`, query: { stuId: currentStudent.value.studentId, stuName: currentStudent.value.realName || '', stuGrade: currentStudent.value.grade || '' } })
 }
 
-// 创建学生
+// 创建学生：姓名、年级在前，手机号在后
+const gradeOptions = ['研一', '研二', '研三', '研四', '博一', '博二', '博三']
 const dialogVisible = ref(false)
 const creating = ref(false)
 const formRef = ref()
-const form = reactive({ phone: '' })
+const form = reactive({ realName: '', grade: '', phone: '' })
 const rules = {
+  realName: [{ required: true, message: '请输入学生姓名', trigger: 'blur' }],
+  grade: [{ required: true, message: '请选择年级', trigger: 'change' }],
   phone: [
     { required: true, message: '请输入手机号', trigger: 'blur' },
     { pattern: /^1[3-9]\d{9}$/, message: '手机号格式不正确', trigger: 'blur' }
   ]
 }
 function openCreate() {
+  form.realName = ''
+  form.grade = ''
   form.phone = ''
   dialogVisible.value = true
 }
@@ -137,8 +157,8 @@ async function onSubmit() {
   await formRef.value.validate()
   creating.value = true
   try {
-    await createStudent({ phone: form.phone })
-    ElMessage.success(`创建成功！初始密码为手机号后6位：${form.phone.slice(-6)}`)
+    await createStudent({ realName: form.realName.trim(), grade: form.grade, phone: form.phone })
+    ElMessage.success(`创建成功！${form.realName.trim()} 的初始密码为手机号后6位：${form.phone.slice(-6)}`)
     dialogVisible.value = false
     loadStudents()
   } finally {
